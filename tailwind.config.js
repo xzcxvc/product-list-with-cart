@@ -17,7 +17,11 @@ export default {
         redhatdisplay: "RedHatDisplay, sans-serif",
       },
       screens: {
-        xs: "360px",
+        xs: "0px",
+        sm: "340px",
+        md: "768px",
+        lg: "1080px",
+        xl: "1281px",
       },
     },
   },
