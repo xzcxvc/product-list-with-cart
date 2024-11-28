@@ -2,9 +2,12 @@ import React, { useState, useEffect } from "react";
 import emptyCart from "/images/illustration-empty-cart.svg";
 import axios from "axios";
 import CartIcon from "/images/icon-add-to-cart.svg";
+import IncrementQty from "/images/icon-increment-quantity.svg";
+import DecrementQty from "/images/icon-decrement-quantity.svg";
 
 const App = () => {
   const [products, setProducts] = useState([]);
+
   const fetchProducts = async () => {
     try {
       const response = await axios.get(
@@ -20,20 +23,51 @@ const App = () => {
     fetchProducts();
   }, []);
 
-  const ProductCard = ({ id, img, title, desc, price, count, onAddToCart }) => {
+  const ProductCard = ({
+    id,
+    img,
+    title,
+    desc,
+    price,
+    count,
+    onAddToCart,
+    onCountInc,
+    onCountDec,
+  }) => {
     return (
       <div className="product-card flex flex-col gap-0 w-full" id={id}>
-        <div className="product-img  transition-transform duration-500 lg:hover:scale-105 xl:hover:scale-105">
+        <div className="product-img  transition-transform duration-500">
           <img src={img} alt="" className="rounded-lg w-full shadow-xl" />
           <div className="flex justify-center items-center w-full">
-            <button
-              onClick={() => onAddToCart()}
-              className="relative font-redhatdisplay font-bold bottom-[20px] lg:text-[14px] sm:text-[14px] md:text-[14px] items-center rounded-full ring-1
-             ring-red-900 bg-white lg:px-8 lg:py-3md:px-7 md:py-2 sm:px-6 sm:py-2xs:px-6 xs:py-2 flex"
-            >
-              <img src={CartIcon} alt="Cart Icon" />
-              <p>Add to cart {count}</p>
-            </button>
+            {count != 0 ? (
+              <div
+                className="flex gap-6 justify-around relative font-redhatdisplay font-bold bottom-[20px] lg:text-[14px] sm:text-[14px] md:text-[14px] items-center rounded-full ring-1
+            ring-red-900 bg-[#BE3C10] text-white lg:p-3 md:p-3 ms:p-3"
+              >
+                <button
+                  className="ring-2 ring-white py-2 px-1 rounded-full"
+                  onClick={() => onCountDec()}
+                >
+                  <img src={DecrementQty} alt="decrement" />
+                </button>
+                <span>{count}</span>
+                <button
+                  className="ring-2 ring-white py-1 px-1 rounded-full"
+                  onClick={() => onCountInc()}
+                >
+                  <img src={IncrementQty} alt="increment" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => onAddToCart(id)}
+                className="flex relative font-redhatdisplay font-bold bottom-[20px] lg:text-[14px] sm:text-[14px] md:text-[14px] items-center rounded-full ring-1
+                ring-red-900 bg-white lg:p-3 md:p-3 ms:p-3"
+              >
+                <img src={CartIcon} alt="Cart Icon" />
+                <p>Add to cart</p>
+              </button>
+            )}
           </div>
         </div>
         <div className="product-details">
@@ -46,21 +80,30 @@ const App = () => {
   };
 
   const handleAddToCart = (id) => {
-    const addedToCart = products.find((product) => product.id === id);
-    if (addedToCart) {
-      setProducts((prevProducts) =>
-        prevProducts.map(
-          (product) =>
-            product.id === id
-              ? { ...product, count: product.count + 1 } // Increment count for the matched product
-              : product // Leave other products unchanged
-        )
-      );
-      console.log(addedToCart.name, "is added!");
-    }
+    setProducts((prevProducts) =>
+      prevProducts.map((product) =>
+        product.id === id ? { ...product, count: product.count + 1 } : product
+      )
+    );
+  };
+
+  const handleIncOrderCount = (id) => {
+    setProducts((prevProducts) =>
+      prevProducts.map((product) =>
+        product.id === id ? { ...product, count: product.count + 1 } : product
+      )
+    );
+  };
+  const handleDecOrderCount = (id) => {
+    setProducts((prevProducts) =>
+      prevProducts.map((product) =>
+        product.id === id ? { ...product, count: product.count - 1 } : product
+      )
+    );
   };
 
   useEffect(() => {
+    console.clear();
     console.table(products);
   }, [products]);
 
@@ -97,6 +140,8 @@ const App = () => {
                           price={product.price}
                           count={product.count}
                           onAddToCart={() => handleAddToCart(product.id)}
+                          onCountInc={() => handleIncOrderCount(product.id)}
+                          onCountDec={() => handleDecOrderCount(product.id)}
                         />
                       </div>
                       {/* For tablet view */}
