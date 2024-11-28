@@ -1,62 +1,16 @@
 import React, { useState, useEffect } from "react";
-import ProductCard from "./assets/components/ProductCard";
 import emptyCart from "/images/illustration-empty-cart.svg";
 import axios from "axios";
+import CartIcon from "/images/icon-add-to-cart.svg";
 
-const Product = ({ index, product }) => {
-  return (
-    <>
-      {/* For desktop view */}
-      <div className="w-full sm:hidden md:hidden lg:block xl:block" key={index}>
-        <ProductCard
-          id={product.id}
-          img={product.dt_img}
-          title={product.name}
-          desc={product.description}
-          price={product.price}
-        />
-      </div>
-
-      {/* For tablet view */}
-      <div
-        className="w-full sm:hidden md:block lg:hidden xl:hidden"
-        key={index}
-      >
-        <ProductCard
-          id={product.id}
-          img={product.tb_img}
-          title={product.name}
-          desc={product.description}
-          price={product.price}
-        />
-      </div>
-
-      {/* For mobile view */}
-      <div
-        className="w-full sm:block md:hidden lg:hidden xl:hidden"
-        key={index}
-      >
-        <ProductCard
-          id={product.id}
-          img={product.mb_img}
-          title={product.name}
-          desc={product.description}
-          price={product.price}
-        />
-      </div>
-    </>
-  );
-};
-function App() {
+const App = () => {
   const [products, setProducts] = useState([]);
-
   const fetchProducts = async () => {
     try {
       const response = await axios.get(
         "https://65fb955514650eb2100a2799.mockapi.io/products"
       );
       setProducts(response.data);
-      console.table(response.data);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -65,6 +19,50 @@ function App() {
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  const ProductCard = ({ id, img, title, desc, price, count, onAddToCart }) => {
+    return (
+      <div className="product-card flex flex-col gap-0 w-full" id={id}>
+        <div className="product-img  transition-transform duration-500 lg:hover:scale-105 xl:hover:scale-105">
+          <img src={img} alt="" className="rounded-lg w-full shadow-xl" />
+          <div className="flex justify-center items-center w-full">
+            <button
+              onClick={() => onAddToCart()}
+              className="relative font-redhatdisplay font-bold bottom-[20px] lg:text-[14px] sm:text-[14px] md:text-[14px] items-center rounded-full ring-1
+             ring-red-900 bg-white lg:px-8 lg:py-3md:px-7 md:py-2 sm:px-6 sm:py-2xs:px-6 xs:py-2 flex"
+            >
+              <img src={CartIcon} alt="Cart Icon" />
+              <p>Add to cart {count}</p>
+            </button>
+          </div>
+        </div>
+        <div className="product-details">
+          <p className="text-[14px] text-gray-500">{title}</p>
+          <p className="font-bold">{desc}</p>
+          <p className="font-bold text-red-600">{"$" + price}</p>
+        </div>
+      </div>
+    );
+  };
+
+  const handleAddToCart = (id) => {
+    const addedToCart = products.find((product) => product.id === id);
+    if (addedToCart) {
+      setProducts((prevProducts) =>
+        prevProducts.map(
+          (product) =>
+            product.id === id
+              ? { ...product, count: product.count + 1 } // Increment count for the matched product
+              : product // Leave other products unchanged
+        )
+      );
+      console.log(addedToCart.name, "is added!");
+    }
+  };
+
+  useEffect(() => {
+    console.table(products);
+  }, [products]);
 
   return (
     <>
@@ -87,7 +85,46 @@ function App() {
             <div className="product-list">
               <div className="grid sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-x-[24px] gap-y-[32px]">
                 {products.map((product, index) => {
-                  return <Product product={product} index={index} />;
+                  return (
+                    <div key={index}>
+                      {/* For desktop view */}
+                      <div className="w-full sm:hidden md:hidden lg:block xl:block">
+                        <ProductCard
+                          id={product.id}
+                          img={product.dt_img}
+                          title={product.name}
+                          desc={product.description}
+                          price={product.price}
+                          count={product.count}
+                          onAddToCart={() => handleAddToCart(product.id)}
+                        />
+                      </div>
+                      {/* For tablet view */}
+                      <div className="w-full sm:hidden md:block lg:hidden xl:hidden">
+                        <ProductCard
+                          id={product.id}
+                          img={product.tb_img}
+                          title={product.name}
+                          desc={product.description}
+                          price={product.price}
+                          count={product.count}
+                          onAddToCart={() => handleAddToCart(product.id)}
+                        />
+                      </div>
+                      {/* For mobile view */}
+                      <div className="w-full sm:block md:hidden lg:hidden xl:hidden">
+                        <ProductCard
+                          id={product.id}
+                          img={product.mb_img}
+                          title={product.name}
+                          desc={product.description}
+                          price={product.price}
+                          count={product.count}
+                          onAddToCart={() => handleAddToCart(product.id)}
+                        />
+                      </div>
+                    </div>
+                  );
                 })}
               </div>
             </div>
@@ -109,6 +146,6 @@ function App() {
       </div>
     </>
   );
-}
+};
 
 export default App;
