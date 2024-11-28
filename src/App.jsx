@@ -85,7 +85,7 @@ function App() {
               Desserts
             </h1>
             <div className="product-list">
-              <div className="grid sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-x-[24px] gap-y-[32px]">
+              <div className="grid sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-x-[24px] gap-y-[32px]">
                 {products.map((product, index) => {
                   return <Product product={product} index={index} />;
                 })}
