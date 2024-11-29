@@ -9,9 +9,9 @@ const App = () => {
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState({
     totalCount: 0,
-    itemDescription: "",
-    itemCount: 0,
-    itemPrice: 0,
+    itemDescription: [],
+    itemCount: [],
+    itemPrice: [],
     itemTotalPrice: 0,
     cartTotalAmount: 0,
   });
@@ -79,38 +79,6 @@ const App = () => {
                 </div>
               )}
             </div>
-            {/* <button
-              className={`relative py-3 text-[14px] bottom-[24px] w-[150px] rounded-full ring-1 ring-red-950 
-                ${count == 0 ? "bg-white" : "bg-[#BE3C10] text-white ring-0"}`}
-            >
-              <div className="flex justify-center font-bold">
-                {count == 0 ? (
-                  <button
-                    onClick={() => onAddToCart(id)}
-                    className="flex w-full h-full justify-center bg-red-200"
-                  >
-                    <img src={CartIcon} alt="Cart Icon" />
-                    <p>Add to cart</p>
-                  </button>
-                ) : (
-                  <div className="flex gap-10 items-center">
-                    <button
-                      className="flex justify-center items-center ring-1 px-1 py-2 ring-white rounded-full"
-                      onClick={() => onCountDec()}
-                    >
-                      <img src={DecrementQty} alt="decrement" />
-                    </button>
-                    <span>{count}</span>
-                    <button
-                      className="flex justify-center items-center ring-1 px-1 py-1 ring-white rounded-full"
-                      onClick={() => onCountInc()}
-                    >
-                      <img src={IncrementQty} alt="increment" />
-                    </button>
-                  </div>
-                )}
-              </div>
-            </button> */}
           </div>
         </div>
         <div className="product-details">
@@ -147,7 +115,7 @@ const App = () => {
   useEffect(() => {
     console.clear();
     console.table(products);
-    console.table(cart);
+    console.table({ cart });
   }, [products]);
 
   return (
@@ -223,15 +191,24 @@ const App = () => {
           </div>
           <div className="cart-container sm:w-full md:w-full lg:w-3/12 xl:w-3/12">
             <div className="cart h-[250px] bg-white rounded-xl mt-[32px] p-[24px]">
-              <p className="text-red-700 text-[24px] font-bold">
-                Your Cart (0)
+              <p className="text-red-700 text-[24px] font-bold pb-4">
+                Your Cart {cart.totalCount}
               </p>
-              <div className="flex flex-col items-center justify-center">
-                <img src={emptyCart} alt="" />
-                <p className="text-[#83635A] font-bold text-[14px]">
-                  Your added items will appear here
-                </p>
-              </div>
+
+              {cart.totalCount == 0 ? (
+                <div className="flex flex-col bg-red-200 h-36">
+                  <div className="font-bold"></div>
+                </div>
+              ) : (
+                <>
+                  <div className="flex flex-col items-center justify-center">
+                    <img src={emptyCart} alt="" />
+                    <p className="text-[#83635A] font-bold text-[14px]">
+                      Your added items will appear here
+                    </p>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
