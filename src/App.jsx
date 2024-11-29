@@ -7,6 +7,14 @@ import DecrementQty from "/images/icon-decrement-quantity.svg";
 
 const App = () => {
   const [products, setProducts] = useState([]);
+  const [cart, setCart] = useState({
+    totalCount: 0,
+    itemDescription: "",
+    itemCount: 0,
+    itemPrice: 0,
+    itemTotalPrice: 0,
+    cartTotalAmount: 0,
+  });
 
   const fetchProducts = async () => {
     try {
@@ -39,35 +47,70 @@ const App = () => {
         <div className="product-img  transition-transform duration-500">
           <img src={img} alt="" className="rounded-lg w-full shadow-xl" />
           <div className="flex justify-center items-center w-full">
-            {count != 0 ? (
-              <div
-                className="flex gap-6 justify-around relative font-redhatdisplay font-bold bottom-[20px] lg:text-[14px] sm:text-[14px] md:text-[14px] items-center rounded-full ring-1
-            ring-red-900 bg-[#BE3C10] text-white lg:p-3 md:p-3 ms:p-3"
-              >
-                <button
-                  className="ring-2 ring-white py-2 px-1 rounded-full"
-                  onClick={() => onCountDec()}
-                >
-                  <img src={DecrementQty} alt="decrement" />
-                </button>
-                <span>{count}</span>
-                <button
-                  className="ring-2 ring-white py-1 px-1 rounded-full"
-                  onClick={() => onCountInc()}
-                >
-                  <img src={IncrementQty} alt="increment" />
-                </button>
+            <div
+              onClick={count == 0 ? () => onAddToCart(id) : null}
+              className={`relative text-[14px] bottom-[24px] w-[140px] rounded-full flex justify-center cursor-pointer
+                ${
+                  count == 0
+                    ? "bg-white py-3 ring-1  ring-red-950"
+                    : "bg-[#BE3C10] py-3 text-white ring-0"
+                }`}
+            >
+              {count == 0 ? (
+                <>
+                  <img src={CartIcon} alt="Cart Icon" />
+                  <p>Add to cart</p>
+                </>
+              ) : (
+                <div className="flex w-full justify-between px-3 items-center">
+                  <button
+                    className="flex justify-center items-center ring-1 px-1 py-2 ring-white rounded-full"
+                    onClick={() => onCountDec()}
+                  >
+                    <img src={DecrementQty} alt="decrement" />
+                  </button>
+                  <span>{count}</span>
+                  <button
+                    className="flex justify-center items-center ring-1 px-1 py-1 ring-white rounded-full"
+                    onClick={() => onCountInc()}
+                  >
+                    <img src={IncrementQty} alt="increment" />
+                  </button>
+                </div>
+              )}
+            </div>
+            {/* <button
+              className={`relative py-3 text-[14px] bottom-[24px] w-[150px] rounded-full ring-1 ring-red-950 
+                ${count == 0 ? "bg-white" : "bg-[#BE3C10] text-white ring-0"}`}
+            >
+              <div className="flex justify-center font-bold">
+                {count == 0 ? (
+                  <button
+                    onClick={() => onAddToCart(id)}
+                    className="flex w-full h-full justify-center bg-red-200"
+                  >
+                    <img src={CartIcon} alt="Cart Icon" />
+                    <p>Add to cart</p>
+                  </button>
+                ) : (
+                  <div className="flex gap-10 items-center">
+                    <button
+                      className="flex justify-center items-center ring-1 px-1 py-2 ring-white rounded-full"
+                      onClick={() => onCountDec()}
+                    >
+                      <img src={DecrementQty} alt="decrement" />
+                    </button>
+                    <span>{count}</span>
+                    <button
+                      className="flex justify-center items-center ring-1 px-1 py-1 ring-white rounded-full"
+                      onClick={() => onCountInc()}
+                    >
+                      <img src={IncrementQty} alt="increment" />
+                    </button>
+                  </div>
+                )}
               </div>
-            ) : (
-              <button
-                onClick={() => onAddToCart(id)}
-                className="flex relative font-redhatdisplay font-bold bottom-[20px] lg:text-[14px] sm:text-[14px] md:text-[14px] items-center rounded-full ring-1
-                ring-red-900 bg-white lg:p-3 md:p-3 ms:p-3"
-              >
-                <img src={CartIcon} alt="Cart Icon" />
-                <p>Add to cart</p>
-              </button>
-            )}
+            </button> */}
           </div>
         </div>
         <div className="product-details">
@@ -86,7 +129,6 @@ const App = () => {
       )
     );
   };
-
   const handleIncOrderCount = (id) => {
     setProducts((prevProducts) =>
       prevProducts.map((product) =>
@@ -105,6 +147,7 @@ const App = () => {
   useEffect(() => {
     console.clear();
     console.table(products);
+    console.table(cart);
   }, [products]);
 
   return (
@@ -120,7 +163,7 @@ const App = () => {
       </div>
 
       <div className="bg-[#FCF8F6] min-h-screen min-w-screen sm:px-[55px] sm:py-[52px] font-redhatdisplay xs:hidden sm:block md:block lg:block xl:block">
-        <div className="contianer flex gap-[26px] sm:flex-col md:flex-col lg:flex-row xl:flex-row">
+        <div className="contianer flex gap-[26px] sm:flex-col md:flex-col lg:flex-row xl:flex-row lg:p-8">
           <div className="list-container sm:w-full md:w-full lg:w-9/12 xl:w-9/12">
             <h1 className="font-extrabold sm:text-[32px] md:text-[36px] lg:text-[40px] xl:text-[40px] mb-[26px]">
               Desserts
@@ -154,6 +197,8 @@ const App = () => {
                           price={product.price}
                           count={product.count}
                           onAddToCart={() => handleAddToCart(product.id)}
+                          onCountInc={() => handleIncOrderCount(product.id)}
+                          onCountDec={() => handleDecOrderCount(product.id)}
                         />
                       </div>
                       {/* For mobile view */}
@@ -166,6 +211,8 @@ const App = () => {
                           price={product.price}
                           count={product.count}
                           onAddToCart={() => handleAddToCart(product.id)}
+                          onCountInc={() => handleIncOrderCount(product.id)}
+                          onCountDec={() => handleDecOrderCount(product.id)}
                         />
                       </div>
                     </div>
