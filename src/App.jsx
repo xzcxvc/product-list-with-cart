@@ -4,17 +4,9 @@ import axios from "axios";
 import CartIcon from "/images/icon-add-to-cart.svg";
 import IncrementQty from "/images/icon-increment-quantity.svg";
 import DecrementQty from "/images/icon-decrement-quantity.svg";
-
+import RemoveItem from "/images/icon-remove-item.svg";
 const App = () => {
   const [products, setProducts] = useState([]);
-  const [cart, setCart] = useState({
-    totalCount: 0,
-    itemDescription: [],
-    itemCount: [],
-    itemPrice: [],
-    itemTotalPrice: 0,
-    cartTotalAmount: 0,
-  });
 
   const fetchProducts = async () => {
     try {
@@ -90,6 +82,12 @@ const App = () => {
     );
   };
 
+  const cartItems = products.filter((product) => product.count > 0);
+  const cartTotal = cartItems.reduce(
+    (sum, item) => sum + item.price * item.count,
+    0
+  );
+
   const handleAddToCart = (id) => {
     setProducts((prevProducts) =>
       prevProducts.map((product) =>
@@ -97,6 +95,7 @@ const App = () => {
       )
     );
   };
+
   const handleIncOrderCount = (id) => {
     setProducts((prevProducts) =>
       prevProducts.map((product) =>
@@ -112,10 +111,18 @@ const App = () => {
     );
   };
 
+  const handleRemoveFromCart = (id) => {
+    setProducts((prevProducts) =>
+      prevProducts.map((product) =>
+        product.id === id ? { ...product, count: 0 } : product
+      )
+    );
+  };
+
   useEffect(() => {
     console.clear();
+    console.table(cartItems);
     console.table(products);
-    console.table({ cart });
   }, [products]);
 
   return (
@@ -190,22 +197,56 @@ const App = () => {
             </div>
           </div>
           <div className="cart-container sm:w-full md:w-full lg:w-3/12 xl:w-3/12">
-            <div className="cart h-[250px] bg-white rounded-xl mt-[32px] p-[24px]">
+            <div className="cart h-auto bg-white rounded-xl mt-[32px] p-[24px]">
               <p className="text-red-700 text-[24px] font-bold pb-4">
-                Your Cart {cart.totalCount}
+                Your Cart ({cartItems.length})
               </p>
 
-              {cart.totalCount == 0 ? (
-                <div className="flex flex-col bg-red-200 h-36">
-                  <div className="font-bold"></div>
-                </div>
-              ) : (
+              {cartItems.length == 0 ? (
                 <>
                   <div className="flex flex-col items-center justify-center">
                     <img src={emptyCart} alt="" />
                     <p className="text-[#83635A] font-bold text-[14px]">
                       Your added items will appear here
                     </p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {cartItems.map((item) => {
+                    return (
+                      <div className="flex flex-col h-auto">
+                        <div className="flex justify-between items-center">
+                          <div className="py-2">
+                            <span className="font-bold">
+                              {item.description}
+                            </span>
+                            <div className="flex gap-2">
+                              <span className="font-semibold text-red-800">
+                                {item.count}x
+                              </span>
+                              <span>@</span>
+                              <span>${item.price}</span>
+                              <span className="font-semibold text-[#7B523C]">
+                                ${item.price * item.count}
+                              </span>
+                            </div>
+                          </div>
+                          <button onClick={() => handleRemoveFromCart(item.id)}>
+                            <img
+                              src={RemoveItem}
+                              alt="remove-item"
+                              className="ring-1 p-1 ring-[#B97B5A] rounded-full"
+                            />
+                          </button>
+                        </div>
+                        <div className="divider bg-gray-300 w-12/12 h-[2px] my-4" />
+                      </div>
+                    );
+                  })}
+                  <div className="flex justify-between items-center">
+                    <p>Order Total</p>
+                    <p className="font-extrabold text-[26px]">${cartTotal}</p>
                   </div>
                 </>
               )}
