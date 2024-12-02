@@ -23,6 +23,9 @@ export default {
         lg: "1080px",
         xl: "1281px",
       },
+      zIndex: {
+        '100': '100',
+      },
     },
   },
   plugins: [],

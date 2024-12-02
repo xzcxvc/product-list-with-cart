@@ -5,8 +5,13 @@ import CartIcon from "/images/icon-add-to-cart.svg";
 import IncrementQty from "/images/icon-increment-quantity.svg";
 import DecrementQty from "/images/icon-decrement-quantity.svg";
 import RemoveItem from "/images/icon-remove-item.svg";
+import OrderConfirmed from "/images/icon-order-confirmed.svg";
+import "./App.css";
+
 const App = () => {
   const [products, setProducts] = useState([]);
+  const [isOrderConfirmed, setIsOrderConfirmed] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(null);
 
   const fetchProducts = async () => {
     try {
@@ -22,6 +27,70 @@ const App = () => {
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  const cartItems = products.filter((product) => product.count > 0);
+  const cartTotal = cartItems.reduce(
+    (sum, item) => sum + item.price * item.count,
+    0
+  );
+
+  const handleAddToCart = (id) => {
+    setProducts((prevProducts) =>
+      prevProducts.map((product) =>
+        product.id === id ? { ...product, count: product.count + 1 } : product
+      )
+    );
+  };
+  const handleIncOrderCount = (id) => {
+    setProducts((prevProducts) =>
+      prevProducts.map((product) =>
+        product.id === id ? { ...product, count: product.count + 1 } : product
+      )
+    );
+  };
+  const handleDecOrderCount = (id) => {
+    setProducts((prevProducts) =>
+      prevProducts.map((product) =>
+        product.id === id ? { ...product, count: product.count - 1 } : product
+      )
+    );
+  };
+  const handleRemoveFromCart = (id) => {
+    setProducts((prevProducts) =>
+      prevProducts.map((product) =>
+        product.id === id ? { ...product, count: 0 } : product
+      )
+    );
+  };
+
+  const handleConfirmOrder = () => {
+    setIsOrderConfirmed((prev) => ({
+      ...prev,
+      isOrderConfirmed: true,
+    }));
+
+    setIsModalOpen((prev) => ({
+      ...prev,
+      isModalOpen: false,
+    }));
+  };
+
+  const handleNewOrder = () => {
+    setIsOrderConfirmed((prev) => ({
+      ...prev,
+      isOrderConfirmed: false,
+    }));
+  };
+
+  useEffect(() => {
+    console.table({ isOrderConfirmed });
+  }, [isOrderConfirmed]);
+
+  useEffect(() => {
+    console.clear();
+    console.table(cartItems);
+    console.table(products);
+  }, [products]);
 
   const ProductCard = ({
     id,
@@ -82,51 +151,99 @@ const App = () => {
     );
   };
 
-  const cartItems = products.filter((product) => product.count > 0);
-  const cartTotal = cartItems.reduce(
-    (sum, item) => sum + item.price * item.count,
-    0
-  );
+  const ConfirmedModal = () => {
+    return (
+      <>
+        <div className="sm:hidden xs:flex items-center justify-center min-h-screen">
+          <div className="cart h-[250px] bg-white rounded-xl mt-[32px] p-[24px] text-red-700">
+            <p className="text-[22px] font-bold">Oops!</p>
+            <p className="text-[16px] font-semibold">
+              Your screen is too small :'(
+            </p>
+            <div className="flex flex-col items-center justify-center"></div>
+          </div>
+        </div>
+        <div
+          className={`fixed xs:hidden sm:block md:block lg:block xl:block inset-0 w-full z-50 bg-black/80 backdrop-blur-sm p-12 
+          ${
+            isModalOpen
+              ? "transition-all duration-500 scale-100 opacity-100"
+              : "transition-all duration-500 scale-0 opacity-0 hidden"
+          }`}
+        >
+          <div className="flex relative lg:top-[5%] items-center justify-center transition-all duration-500">
+            <div className="xl:w-4/12 lg:w-6/12 md:w-9/12 sm:w-9/12 p-5 rounded-xl bg-white h-auto">
+              <img className="py-5" src={OrderConfirmed} alt="" />
+              <div className="pb-6">
+                <h1 className="font-bold text-[40px]">Order Confirmed</h1>
+                <p className="text-[#B97B5A]">We hope you enjoy your food!</p>
+              </div>
+              <div className="bg-[#FCF8F6] w-full h-auto rounded-lg">
+                <div className="max-h-72 overflow-y-auto">
+                  {cartItems.map((item) => {
+                    return (
+                      <div className="px-3">
+                        <div className="flex justify-between items-center">
+                          <div className="py-2 flex gap-2">
+                            <img
+                              className="w-14"
+                              src={item.thmb_img}
+                              alt="item-thubmnail"
+                            />
+                            <div className="flex flex-col">
+                              <span className="font-bold">
+                                {item.description}
+                              </span>
+                              <div className="flex gap-2">
+                                <span className="font-semibold text-red-800">
+                                  {item.count}x
+                                </span>
+                                <span>@</span>
+                                <span>${item.price}</span>
+                                <span className="font-semibold text-[#7B523C]">
+                                  ${item.price * item.count}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <button onClick={() => handleRemoveFromCart(item.id)}>
+                            <img
+                              src={RemoveItem}
+                              alt="remove-item"
+                              className="ring-1 p-1 ring-[#B97B5A] rounded-full"
+                            />
+                          </button>
+                        </div>
+                        <div className="divider bg-gray-300 w-12/12 h-[2px]" />
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="w-full px-5 py-3">
+                  <div className="flex justify-between items-center flex-row font-bold">
+                    <p>Order Total</p>
+                    <p className="font-extrabold text-[26px]">${cartTotal}</p>
+                  </div>
+                </div>
+              </div>
 
-  const handleAddToCart = (id) => {
-    setProducts((prevProducts) =>
-      prevProducts.map((product) =>
-        product.id === id ? { ...product, count: product.count + 1 } : product
-      )
+              <button
+                onClick={() => handleNewOrder()}
+                className="w-full my-5 bg-[#BE3C10] rounded-full text-white p-4 font-semibold"
+              >
+                Start New Order
+              </button>
+            </div>
+          </div>
+        </div>
+      </>
     );
   };
-
-  const handleIncOrderCount = (id) => {
-    setProducts((prevProducts) =>
-      prevProducts.map((product) =>
-        product.id === id ? { ...product, count: product.count + 1 } : product
-      )
-    );
-  };
-  const handleDecOrderCount = (id) => {
-    setProducts((prevProducts) =>
-      prevProducts.map((product) =>
-        product.id === id ? { ...product, count: product.count - 1 } : product
-      )
-    );
-  };
-
-  const handleRemoveFromCart = (id) => {
-    setProducts((prevProducts) =>
-      prevProducts.map((product) =>
-        product.id === id ? { ...product, count: 0 } : product
-      )
-    );
-  };
-
-  useEffect(() => {
-    console.clear();
-    console.table(cartItems);
-    console.table(products);
-  }, [products]);
 
   return (
     <>
+      {isModalOpen && <ConfirmedModal />}
+
       <div className="sm:hidden xs:flex items-center justify-center min-h-screen">
         <div className="cart h-[250px] bg-white rounded-xl mt-[32px] p-[24px] text-red-700">
           <p className="text-[22px] font-bold">Oops!</p>
@@ -137,7 +254,7 @@ const App = () => {
         </div>
       </div>
 
-      <div className="bg-[#FCF8F6] min-h-screen min-w-screen sm:px-[55px] sm:py-[52px] font-redhatdisplay xs:hidden sm:block md:block lg:block xl:block">
+      <div className="bg-[#FCF8F6] min-h-screen min-w-screen sm:px-[55px] sm:py-[52px]  xs:hidden sm:block md:block lg:block xl:block">
         <div className="contianer flex gap-[26px] sm:flex-col md:flex-col lg:flex-row xl:flex-row lg:p-8">
           <div className="list-container sm:w-full md:w-full lg:w-9/12 xl:w-9/12">
             <h1 className="font-extrabold sm:text-[32px] md:text-[36px] lg:text-[40px] xl:text-[40px] mb-[26px]">
@@ -244,9 +361,24 @@ const App = () => {
                       </div>
                     );
                   })}
-                  <div className="flex justify-between items-center">
-                    <p>Order Total</p>
-                    <p className="font-extrabold text-[26px]">${cartTotal}</p>
+                  <div className="w-full">
+                    <div className="flex justify-between items-center flex-row">
+                      <p>Order Total</p>
+                      <p className="font-extrabold text-[26px]">${cartTotal}</p>
+                    </div>
+                    <div className="bg-[#FCF8F6] p-6 my-8 flex justify-center items-center gap-1 rounded-lg">
+                      <img src="./images/icon-carbon-neutral.svg"></img>
+                      <span>
+                        This is a <b>carbon-neutral </b>
+                        delivery
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => handleConfirmOrder()}
+                      className="w-full bg-[#BE3C10] rounded-full text-white p-4 font-semibold"
+                    >
+                      Confirm Order
+                    </button>
                   </div>
                 </>
               )}
