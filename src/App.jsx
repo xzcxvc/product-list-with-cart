@@ -170,12 +170,12 @@ const App = () => {
           </div>
         </div>
         <div
-          className={`fixed inset-0 w-full z-50 bg-black/80 backdrop-blur-sm p-12 
+          className={`fixed inset-0 w-full z-50 bg-black/80 backdrop-blur-sm xl:p-12 sm:p-5
           ${isCartEmpty ? "hidden" : "sm:block md:block lg:block xl:block"}
             `}
         >
           <div className="flex relative lg:top-[5%] items-center justify-center transition-all duration-500">
-            <div className="xl:w-4/12 lg:w-6/12 md:w-9/12 sm:w-9/12 p-5 rounded-xl bg-white h-auto">
+            <div className="xl:w-4/12 lg:w-6/12 md:w-9/12 sm:w-12/12 p-5 rounded-xl bg-white h-auto">
               <img className="py-5" src={OrderConfirmed} alt="" />
               <div className="pb-6">
                 <h1 className="font-bold text-[40px]">Order Confirmed</h1>
