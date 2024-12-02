@@ -10,8 +10,8 @@ import "./App.css";
 
 const App = () => {
   const [products, setProducts] = useState([]);
-  const [isOrderConfirmed, setIsOrderConfirmed] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(null);
+  const [isOrderConfirmed, setIsOrderConfirmed] = useState(false);
+  const [isCartEmpty, setIsCartEmpty] = useState(false);
 
   const fetchProducts = async () => {
     try {
@@ -29,10 +29,17 @@ const App = () => {
   }, []);
 
   const cartItems = products.filter((product) => product.count > 0);
+  const cartItemCount = cartItems.length;
   const cartTotal = cartItems.reduce(
     (sum, item) => sum + item.price * item.count,
     0
   );
+
+  useEffect(() => {
+    console.clear();
+    cartItemCount > 0 ? setIsCartEmpty(false) : setIsCartEmpty(true);
+    console.table({ cartItemCount, isCartEmpty });
+  }, [cartItems]);
 
   const handleAddToCart = (id) => {
     setProducts((prevProducts) =>
@@ -41,6 +48,7 @@ const App = () => {
       )
     );
   };
+
   const handleIncOrderCount = (id) => {
     setProducts((prevProducts) =>
       prevProducts.map((product) =>
@@ -48,49 +56,47 @@ const App = () => {
       )
     );
   };
+
   const handleDecOrderCount = (id) => {
-    setProducts((prevProducts) =>
-      prevProducts.map((product) =>
-        product.id === id ? { ...product, count: product.count - 1 } : product
-      )
-    );
+    if (cartItems.length > 0) {
+      setProducts((prevProducts) =>
+        prevProducts.map((product) =>
+          product.id === id ? { ...product, count: product.count - 1 } : product
+        )
+      );
+    } else {
+      setIsCartEmpty(true);
+    }
   };
   const handleRemoveFromCart = (id) => {
-    setProducts((prevProducts) =>
-      prevProducts.map((product) =>
-        product.id === id ? { ...product, count: 0 } : product
-      )
-    );
+    if (cartItems.length > 0) {
+      setProducts((prevProducts) =>
+        prevProducts.map((product) =>
+          product.id === id ? { ...product, count: 0 } : product
+        )
+      );
+    } else {
+      setIsCartEmpty(true);
+    }
   };
 
   const handleConfirmOrder = () => {
-    setIsOrderConfirmed((prev) => ({
-      ...prev,
-      isOrderConfirmed: true,
-    }));
-
-    setIsModalOpen((prev) => ({
-      ...prev,
-      isModalOpen: false,
-    }));
+    setIsOrderConfirmed(true);
   };
 
   const handleNewOrder = () => {
-    setIsOrderConfirmed((prev) => ({
-      ...prev,
-      isOrderConfirmed: false,
-    }));
+    setIsOrderConfirmed(false);
   };
 
-  useEffect(() => {
-    console.table({ isOrderConfirmed });
-  }, [isOrderConfirmed]);
+  // useEffect(() => {
+  //   console.table({ isOrderConfirmed });
+  // }, [isOrderConfirmed]);
 
-  useEffect(() => {
-    console.clear();
-    console.table(cartItems);
-    console.table(products);
-  }, [products]);
+  // useEffect(() => {
+  //   console.clear();
+  //   console.table(cartItems);
+  //   console.table(products);
+  // }, [products]);
 
   const ProductCard = ({
     id,
@@ -164,12 +170,9 @@ const App = () => {
           </div>
         </div>
         <div
-          className={`fixed xs:hidden sm:block md:block lg:block xl:block inset-0 w-full z-50 bg-black/80 backdrop-blur-sm p-12 
-          ${
-            isModalOpen
-              ? "transition-all duration-500 scale-100 opacity-100"
-              : "transition-all duration-500 scale-0 opacity-0 hidden"
-          }`}
+          className={`fixed inset-0 w-full z-50 bg-black/80 backdrop-blur-sm p-12 
+          ${isCartEmpty ? "hidden" : "sm:block md:block lg:block xl:block"}
+            `}
         >
           <div className="flex relative lg:top-[5%] items-center justify-center transition-all duration-500">
             <div className="xl:w-4/12 lg:w-6/12 md:w-9/12 sm:w-9/12 p-5 rounded-xl bg-white h-auto">
@@ -182,7 +185,7 @@ const App = () => {
                 <div className="max-h-72 overflow-y-auto">
                   {cartItems.map((item) => {
                     return (
-                      <div className="px-3">
+                      <div className="px-3" key={item.id}>
                         <div className="flex justify-between items-center">
                           <div className="py-2 flex gap-2">
                             <img
@@ -242,8 +245,7 @@ const App = () => {
 
   return (
     <>
-      {isModalOpen && <ConfirmedModal />}
-
+      {isOrderConfirmed && <ConfirmedModal />}
       <div className="sm:hidden xs:flex items-center justify-center min-h-screen">
         <div className="cart h-[250px] bg-white rounded-xl mt-[32px] p-[24px] text-red-700">
           <p className="text-[22px] font-bold">Oops!</p>
@@ -332,7 +334,7 @@ const App = () => {
                 <>
                   {cartItems.map((item) => {
                     return (
-                      <div className="flex flex-col h-auto">
+                      <div className="flex flex-col h-auto" key={item.id}>
                         <div className="flex justify-between items-center">
                           <div className="py-2">
                             <span className="font-bold">
