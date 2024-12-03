@@ -12,6 +12,7 @@ const App = () => {
   const [products, setProducts] = useState([]);
   const [isOrderConfirmed, setIsOrderConfirmed] = useState(false);
   const [isCartEmpty, setIsCartEmpty] = useState(true);
+  const [cartItems, setCartItems] = useState([]);
 
   const fetchProducts = async () => {
     try {
@@ -28,7 +29,6 @@ const App = () => {
     fetchProducts();
   }, []);
 
-  const cartItems = products.filter((product) => product.count > 0);
   const cartItemCount = cartItems.length;
   const cartTotal = cartItems.reduce(
     (sum, item) => sum + item.price * item.count,
@@ -36,9 +36,13 @@ const App = () => {
   );
 
   useEffect(() => {
-    console.clear();
-    console.table({ cartItemCount, isCartEmpty, cartItems });
+    setCartItems(products.filter((product) => product.count > 0));
     cartItemCount == 0 ? setIsCartEmpty(true) : setIsCartEmpty(false);
+  }, [products, cartItemCount]);
+
+  useEffect(() => {
+    console.clear();
+    console.table({ cartItemCount, isCartEmpty });
   }, [cartItems]);
 
   const handleAddToCart = (id) => {
@@ -78,7 +82,6 @@ const App = () => {
   };
 
   const handleNewOrder = () => {
-    console.clear();
     setIsOrderConfirmed(false);
     setIsCartEmpty(true);
     setProducts((prevProducts) =>
@@ -247,7 +250,7 @@ const App = () => {
                 {products.map((product, index) => {
                   return (
                     <div key={index}>
-                      {/* For desktop view */}
+                      {/* render desktop view */}
                       <div className="w-full sm:hidden md:hidden lg:block xl:block">
                         <ProductCard
                           id={product.id}
@@ -261,7 +264,7 @@ const App = () => {
                           onCountDec={() => handleDecOrderCount(product.id)}
                         />
                       </div>
-                      {/* For tablet view */}
+                      {/* render tablet view */}
                       <div className="w-full sm:hidden md:block lg:hidden xl:hidden">
                         <ProductCard
                           id={product.id}
@@ -275,7 +278,7 @@ const App = () => {
                           onCountDec={() => handleDecOrderCount(product.id)}
                         />
                       </div>
-                      {/* For mobile view */}
+                      {/* render mobile view */}
                       <div className="w-full sm:block md:hidden lg:hidden xl:hidden">
                         <ProductCard
                           id={product.id}
