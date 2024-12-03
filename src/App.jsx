@@ -11,7 +11,7 @@ import "./App.css";
 const App = () => {
   const [products, setProducts] = useState([]);
   const [isOrderConfirmed, setIsOrderConfirmed] = useState(false);
-  const [isCartEmpty, setIsCartEmpty] = useState(false);
+  const [isCartEmpty, setIsCartEmpty] = useState(true);
 
   const fetchProducts = async () => {
     try {
@@ -37,8 +37,8 @@ const App = () => {
 
   useEffect(() => {
     console.clear();
-    cartItemCount > 0 ? setIsCartEmpty(false) : setIsCartEmpty(true);
-    console.table({ cartItemCount, isCartEmpty });
+    console.table({ cartItemCount, isCartEmpty, cartItems });
+    cartItemCount == 0 ? setIsCartEmpty(true) : setIsCartEmpty(false);
   }, [cartItems]);
 
   const handleAddToCart = (id) => {
@@ -58,26 +58,19 @@ const App = () => {
   };
 
   const handleDecOrderCount = (id) => {
-    if (cartItems.length > 0) {
-      setProducts((prevProducts) =>
-        prevProducts.map((product) =>
-          product.id === id ? { ...product, count: product.count - 1 } : product
-        )
-      );
-    } else {
-      setIsCartEmpty(true);
-    }
+    setProducts((prevProducts) =>
+      prevProducts.map((product) =>
+        product.id === id ? { ...product, count: product.count - 1 } : product
+      )
+    );
   };
+
   const handleRemoveFromCart = (id) => {
-    if (cartItems.length > 0) {
-      setProducts((prevProducts) =>
-        prevProducts.map((product) =>
-          product.id === id ? { ...product, count: 0 } : product
-        )
-      );
-    } else {
-      setIsCartEmpty(true);
-    }
+    setProducts((prevProducts) =>
+      prevProducts.map((product) =>
+        product.id === id ? { ...product, count: 0 } : product
+      )
+    );
   };
 
   const handleConfirmOrder = () => {
@@ -85,18 +78,13 @@ const App = () => {
   };
 
   const handleNewOrder = () => {
+    console.clear();
     setIsOrderConfirmed(false);
+    setIsCartEmpty(true);
+    setProducts((prevProducts) =>
+      prevProducts.map((product) => ({ ...product, count: 0 }))
+    );
   };
-
-  // useEffect(() => {
-  //   console.table({ isOrderConfirmed });
-  // }, [isOrderConfirmed]);
-
-  // useEffect(() => {
-  //   console.clear();
-  //   console.table(cartItems);
-  //   console.table(products);
-  // }, [products]);
 
   const ProductCard = ({
     id,
@@ -157,7 +145,7 @@ const App = () => {
     );
   };
 
-  const ConfirmedModal = () => {
+  const Modal = () => {
     return (
       <>
         <div className="sm:hidden xs:flex items-center justify-center min-h-screen">
@@ -171,10 +159,9 @@ const App = () => {
         </div>
         <div
           className={`fixed inset-0 w-full z-50 bg-black/80 backdrop-blur-sm xl:p-12 sm:p-5
-          ${isCartEmpty ? "hidden" : "sm:block md:block lg:block xl:block"}
             `}
         >
-          <div className="flex relative lg:top-[5%] items-center justify-center transition-all duration-500">
+          <div className="flex relative lg:top-[5%] npitems-center justify-center transition-all duration-500">
             <div className="xl:w-4/12 lg:w-6/12 md:w-9/12 sm:w-12/12 p-5 rounded-xl bg-white h-auto">
               <img className="py-5" src={OrderConfirmed} alt="" />
               <div className="pb-6">
@@ -203,26 +190,19 @@ const App = () => {
                                 </span>
                                 <span>@</span>
                                 <span>${item.price}</span>
-                                <span className="font-semibold text-[#7B523C]">
-                                  ${item.price * item.count}
-                                </span>
                               </div>
                             </div>
                           </div>
-                          <button onClick={() => handleRemoveFromCart(item.id)}>
-                            <img
-                              src={RemoveItem}
-                              alt="remove-item"
-                              className="ring-1 p-1 ring-[#B97B5A] rounded-full"
-                            />
-                          </button>
+                          <span className="font-bold text-[#7B523C]">
+                            ${item.price * item.count}
+                          </span>
                         </div>
-                        <div className="divider bg-gray-300 w-12/12 h-[2px]" />
+                        <div className="divider bg-gray-200 w-12/12 h-[2px]" />
                       </div>
                     );
                   })}
                 </div>
-                <div className="w-full px-5 py-3">
+                <div className="w-full px-3 py-3">
                   <div className="flex justify-between items-center flex-row font-bold">
                     <p>Order Total</p>
                     <p className="font-extrabold text-[26px]">${cartTotal}</p>
@@ -245,7 +225,7 @@ const App = () => {
 
   return (
     <>
-      {isOrderConfirmed && <ConfirmedModal />}
+      {isOrderConfirmed && !isCartEmpty && <Modal />}
       <div className="sm:hidden xs:flex items-center justify-center min-h-screen">
         <div className="cart h-[250px] bg-white rounded-xl mt-[32px] p-[24px] text-red-700">
           <p className="text-[22px] font-bold">Oops!</p>
@@ -258,7 +238,7 @@ const App = () => {
 
       <div className="bg-[#FCF8F6] min-h-screen min-w-screen sm:px-[55px] sm:py-[52px]  xs:hidden sm:block md:block lg:block xl:block">
         <div className="contianer flex gap-[26px] sm:flex-col md:flex-col lg:flex-row xl:flex-row lg:p-8">
-          <div className="list-container sm:w-full md:w-full lg:w-9/12 xl:w-9/12">
+          <div className="list-container sm:w-full md:w-full lg:w-8/12 xl:w-9/12">
             <h1 className="font-extrabold sm:text-[32px] md:text-[36px] lg:text-[40px] xl:text-[40px] mb-[26px]">
               Desserts
             </h1>
@@ -315,7 +295,7 @@ const App = () => {
               </div>
             </div>
           </div>
-          <div className="cart-container sm:w-full md:w-full lg:w-3/12 xl:w-3/12">
+          <div className="cart-container sm:w-full md:w-full lg:w-4/12 xl:w-3/12">
             <div className="cart h-auto bg-white rounded-xl mt-[32px] p-[24px]">
               <p className="text-red-700 text-[24px] font-bold pb-4">
                 Your Cart ({cartItems.length})
@@ -331,44 +311,51 @@ const App = () => {
                   </div>
                 </>
               ) : (
-                <>
-                  {cartItems.map((item) => {
-                    return (
-                      <div className="flex flex-col h-auto" key={item.id}>
-                        <div className="flex justify-between items-center">
-                          <div className="py-2">
-                            <span className="font-bold">
-                              {item.description}
-                            </span>
-                            <div className="flex gap-2">
-                              <span className="font-semibold text-red-800">
-                                {item.count}x
-                              </span>
-                              <span>@</span>
-                              <span>${item.price}</span>
-                              <span className="font-semibold text-[#7B523C]">
-                                ${item.price * item.count}
-                              </span>
+                <div className="w-full h-auto rounded-lg">
+                  <div className="max-h-96 overflow-y-auto">
+                    {cartItems.map((item) => {
+                      return (
+                        <div className="px-3" key={item.id}>
+                          <div className="flex justify-between items-center">
+                            <div className="py-2 flex gap-2">
+                              <div className="flex flex-col">
+                                <span className="font-bold">
+                                  {item.description}
+                                </span>
+                                <div className="flex gap-2">
+                                  <span className="font-semibold text-red-800">
+                                    {item.count}x
+                                  </span>
+                                  <span>@</span>
+                                  <span>${item.price}</span>
+                                  <span className="font-bold text-[#7B523C]">
+                                    ${item.price * item.count}
+                                  </span>
+                                </div>
+                              </div>
                             </div>
+                            <button
+                              onClick={() => handleRemoveFromCart(item.id)}
+                            >
+                              <img
+                                src={RemoveItem}
+                                alt="remove-item"
+                                className="ring-1 p-1 ring-[#B97B5A] rounded-full"
+                              />
+                            </button>
                           </div>
-                          <button onClick={() => handleRemoveFromCart(item.id)}>
-                            <img
-                              src={RemoveItem}
-                              alt="remove-item"
-                              className="ring-1 p-1 ring-[#B97B5A] rounded-full"
-                            />
-                          </button>
+                          <div className="divider bg-gray-200 w-12/12 h-[2px]" />
                         </div>
-                        <div className="divider bg-gray-300 w-12/12 h-[2px] my-4" />
-                      </div>
-                    );
-                  })}
-                  <div className="w-full">
-                    <div className="flex justify-between items-center flex-row">
+                      );
+                    })}
+                  </div>
+                  <div className="w-full px-3 py-3">
+                    <div className="flex justify-between items-center flex-row font-bold">
                       <p>Order Total</p>
                       <p className="font-extrabold text-[26px]">${cartTotal}</p>
                     </div>
-                    <div className="bg-[#FCF8F6] p-6 my-8 flex justify-center items-center gap-1 rounded-lg">
+
+                    <div className="bg-[#FCF8F6] px-6 py-4 my-8 flex justify-center items-center gap-1 rounded-lg">
                       <img src="./images/icon-carbon-neutral.svg"></img>
                       <span>
                         This is a <b>carbon-neutral </b>
@@ -382,7 +369,7 @@ const App = () => {
                       Confirm Order
                     </button>
                   </div>
-                </>
+                </div>
               )}
             </div>
           </div>
